@@ -1,25 +1,34 @@
 import asyncio
-import typing
+from typing import Any, Coroutine
 
 import aiohttp
+from aiohttp import ClientSession
 
 
-class AsyncRequester:
+class _BaseAsyncRequester:
     def __init__(self, url: str, repeat: int) -> None:
         self.url: str = url
         self.repeat: int = repeat
     
-    async def _get_data(self, url: str, __session: aiohttp.ClientSession) -> typing.Coroutine[typing.Any, typing.Any, typing.Any]:
+    async def _get_data(self, url: str, __session: ClientSession) -> Coroutine[Any, Any, Any]:
         async with __session.get(url) as response:
             return await response.json()
     
-    async def request(self) -> typing.Any:
+    async def _base_request(self) -> Any:
         async with aiohttp.ClientSession() as session:
-            tasks: list[typing.Any] = []
+            tasks: list[Any] = []
             
             for i in range(self.repeat):
                 tasks.append(asyncio.ensure_future(self._get_data(self.url, session)))
             
-            original_data: typing.Any = await asyncio.gather(*tasks)
+            original_data: Any = await asyncio.gather(*tasks)
             
             return original_data
+
+
+class AsyncRequester(_BaseAsyncRequester):
+    def __init__(self, url: str, repeat: int) -> None:
+        super().__init__(url, repeat)
+    
+    def request(self) -> Any:
+        return asyncio.run(self._base_request())
