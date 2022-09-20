@@ -1,18 +1,19 @@
 import datetime
 import functools
 import time
-import typing
+from typing import Any
 
-def time_recorder(func) -> typing.Any:
+
+def time_recorder(func) -> Any:
     @functools.wraps(func)
-    def wrapper(*args, **kwargs) -> typing.Any:
+    def wrapper(*args, **kwargs) -> Any:
         start_at: float = time.time()
         start_str: str = datetime.datetime.fromtimestamp(start_at).strftime("%Y-%m-%d %H:%I:%S")
 
         print(f"Started func: \"{func.__name__}\" [{start_str}]")
         print()
 
-        result: typing.Any = func(*args, **kwargs)
+        result: Any = func(*args, **kwargs)
 
         end_at: float = time.time()
         end_str: str = datetime.datetime.fromtimestamp(end_at).strftime("%Y-%m-%d %H:%I:%S")
