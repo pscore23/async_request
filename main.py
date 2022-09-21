@@ -9,11 +9,12 @@ import _exceptions
 
 
 class _BaseAsyncRequester:
-    def __init__(self, url: str, repeat: int, method: str, data: Any) -> None:
+    def __init__(self, url: str, repeat: int, method: str, data: Any, headers: dict) -> None:
         self.url: str = url
         self.repeat: int = repeat
         self.method: str = method
         self.data: Any = data
+        self.headers: dict = headers
     
     async def _get_data(self, url: str, __session: ClientSession) -> Coroutine[Any, Any, Any]:
         async with __session.get(url) as response:
@@ -24,7 +25,7 @@ class _BaseAsyncRequester:
             return await response.json()
     
     async def _base_request(self) -> Any:
-        async with aiohttp.ClientSession() as session:
+        async with aiohttp.ClientSession(headers=self.headers) as session:
             tasks: list[Any] = []
             
             for i in range(self.repeat):
@@ -43,8 +44,8 @@ class _BaseAsyncRequester:
 
 
 class AsyncRequester(_BaseAsyncRequester):
-    def __init__(self, url: str, repeat: int, method: str = "GET", data: Any = {}) -> None:
-        super().__init__(url, repeat, method, data)
+    def __init__(self, url: str, repeat: int, method: str = "GET", data: Any = {}, headers: dict = {}) -> None:
+        super().__init__(url, repeat, method, data, headers)
     
     def request(self) -> Any:
         return asyncio.run(self._base_request())
